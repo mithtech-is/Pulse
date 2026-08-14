@@ -1,0 +1,2 @@
+import{_ as t,a,c as n,n as r}from"./index-JLEyY0ms.js";const s={__name:"Skeleton",props:{width:{type:String,default:"100%"},height:{type:String,default:"14px"},radius:{type:String,default:"6px"}},setup(e){return(i,d)=>(a(),n("span",{class:"sk",style:r({width:e.width,height:e.height,borderRadius:e.radius}),"aria-hidden":"true"},null,4))}},c=t(s,[["__scopeId","data-v-176d6208"]]);export{c as S};
+//# sourceMappingURL=Skeleton-bozMFsDb.js.map

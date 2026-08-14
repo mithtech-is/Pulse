@@ -10,9 +10,14 @@
         </div>
       </div>
 
-      <div class="px-2.5 pt-3">
+      <div class="px-2.5 pt-3 space-y-2">
         <button @click="openCreate()" class="new-btn w-full flex items-center justify-center gap-2 py-2.5 text-[13px] font-semibold">
           <Plus class="w-4 h-4" /> New task
+        </button>
+        <button @click="openPalette()" class="search-btn w-full flex items-center gap-2 px-2.5 py-2 text-[13px]">
+          <Search class="w-[15px] h-[15px] text-faint" />
+          <span class="text-faint">Search…</span>
+          <span class="ml-auto kbd">{{ isMac ? '⌘K' : 'Ctrl K' }}</span>
         </button>
       </div>
 
@@ -62,90 +67,55 @@
 
     <CreateIssueModal />
     <EntityForm />
+    <CommandPalette />
+    <TaskDrawer :task-id="taskDrawerState.taskId" @close="closeTaskDrawer" @changed="() => {}" @open="openTaskDrawer" />
     <Toaster />
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { call } from 'frappe-ui'
 import { theme, toggleTheme } from './theme'
 import { openCreate } from './ui/create'
+import { openPalette } from './ui/commandPalette'
+import { taskDrawerState, closeTaskDrawer, openTaskDrawer } from './ui/taskDrawer'
+import { nav } from './nav'
 import Avatar from './ui/Avatar.vue'
 import Toaster from './ui/Toaster.vue'
 import CreateIssueModal from './components/CreateIssueModal.vue'
 import EntityForm from './components/EntityForm.vue'
+import CommandPalette from './components/CommandPalette.vue'
+import TaskDrawer from './components/TaskDrawer.vue'
 import Plus from '~icons/lucide/plus'
-import House from '~icons/lucide/house'
-import LayoutDashboard from '~icons/lucide/layout-dashboard'
-import ChartColumn from '~icons/lucide/chart-column'
-import FileBarChart from '~icons/lucide/file-bar-chart'
-import SquareCheckBig from '~icons/lucide/square-check-big'
-import ListChecks from '~icons/lucide/list-checks'
-import SquareKanban from '~icons/lucide/square-kanban'
-import List from '~icons/lucide/list'
-import CalendarDays from '~icons/lucide/calendar-days'
-import Repeat from '~icons/lucide/repeat'
-import Folder from '~icons/lucide/folder'
-import Layers from '~icons/lucide/layers'
-import Zap from '~icons/lucide/zap'
-import Tag from '~icons/lucide/tag'
-import Target from '~icons/lucide/target'
-import ShieldAlert from '~icons/lucide/shield-alert'
-import Users from '~icons/lucide/users'
-import RefreshCw from '~icons/lucide/refresh-cw'
-import FileText from '~icons/lucide/file-text'
-import Clock from '~icons/lucide/clock'
-import ScrollText from '~icons/lucide/scroll-text'
-import Settings from '~icons/lucide/settings'
+import Search from '~icons/lucide/search'
 import Sun from '~icons/lucide/sun'
 import Moon from '~icons/lucide/moon'
 
 const user = ref('')
 const projects = ref([])
 const shortUser = computed(() => (user.value || '').split('@')[0])
-
-const nav = [
-  { section: 'Work', items: [
-    { to: '/', label: 'Home', icon: House },
-    { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { to: '/analytics', label: 'Analytics', icon: ChartColumn },
-    { to: '/reports', label: 'Reports', icon: FileBarChart },
-    { to: '/todo', label: 'To Do', icon: ListChecks },
-    { to: '/my-work', label: 'My Work', icon: SquareCheckBig },
-    { to: '/board', label: 'Board', icon: SquareKanban },
-    { to: '/backlog', label: 'Backlog', icon: List },
-    { to: '/sprints', label: 'Sprints', icon: CalendarDays },
-    { to: '/recurring', label: 'Recurring', icon: Repeat },
-    { to: '/projects', label: 'Projects', icon: Folder },
-  ] },
-  { section: 'Plan', items: [
-    { to: '/epics', label: 'Epics', icon: Zap },
-    { to: '/releases', label: 'Releases', icon: Tag },
-    { to: '/m/portfolio', label: 'Portfolio', icon: Layers },
-    { to: '/m/okrs', label: 'OKRs', icon: Target },
-    { to: '/m/risks', label: 'Risks', icon: ShieldAlert },
-  ] },
-  { section: 'Collaborate', items: [
-    { to: '/m/meetings', label: 'Meetings', icon: Users },
-    { to: '/m/retros', label: 'Retrospectives', icon: RefreshCw },
-    { to: '/m/documents', label: 'Documents', icon: FileText },
-    { to: '/m/timesheets', label: 'Timesheets', icon: Clock },
-  ] },
-  { section: 'System', items: [
-    { to: '/audit', label: 'Audit Logs', icon: ScrollText },
-    { href: '/app/pulse-settings', label: 'Settings', icon: Settings },
-  ] },
-]
+const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPod|iPad/.test(navigator.platform || navigator.userAgent || '')
 
 function onToggle() { toggleTheme() }
 
+// Cmd+K / Ctrl+K opens the command palette from anywhere in the app, matching
+// the convention set by every tool this is meant to feel as fast as.
+function onKeydown(e) {
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+    e.preventDefault()
+    openPalette()
+  }
+}
+
 onMounted(async () => {
+  window.addEventListener('keydown', onKeydown)
   try { user.value = await call('frappe.auth.get_logged_user') } catch (e) { user.value = '' }
   projects.value = await call('frappe.client.get_list', {
     doctype: 'Project', fields: ['name', 'project_name', 'pulse_project_key'], limit_page_length: 0,
   }).catch(() => [])
 })
+onUnmounted(() => window.removeEventListener('keydown', onKeydown))
 </script>
 
 <style scoped>
@@ -155,4 +125,7 @@ onMounted(async () => {
 .nav-item.active :deep(svg) { color: var(--accent); }
 .new-btn { background: var(--accent); transition: filter 0.12s; }
 .new-btn:hover { filter: brightness(1.08); }
+.search-btn { border: 1px solid var(--border); border-radius: 8px; color: var(--muted); transition: border-color 0.12s, background 0.12s; }
+.search-btn:hover { border-color: var(--accent); background: var(--surface-2); }
+.kbd { font-size: 10px; padding: 1px 5px; border-radius: 4px; background: var(--surface-2); border: 1px solid var(--border); color: var(--faint); }
 </style>

@@ -9,6 +9,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     Bars: typeof import('./src/components/charts/Bars.vue')['default']
+    CommandPalette: typeof import('./src/components/CommandPalette.vue')['default']
     CreateIssueModal: typeof import('./src/components/CreateIssueModal.vue')['default']
     DashboardWidget: typeof import('./src/components/DashboardWidget.vue')['default']
     Donut: typeof import('./src/components/charts/Donut.vue')['default']
