@@ -1,13 +1,13 @@
 app_name = "pulse"
 app_title = "Pulse"
-app_publisher = "Frappe"
+app_publisher = "MithTech"
 app_description = "Modern agile delivery layer on top of ERPNext Projects"
 required_apps = ["erpnext"]
-app_email = "info@frappe.io"
+app_email = "info@mith.tech"
 app_icon = "octicon octicon-project"
 app_color = "blue"
 app_logo_url = "/assets/pulse/images/pulse-logo.png"
-app_version = "0.2.0"
+from pulse import __version__ as app_version  # one version, kept in pulse/__init__.py
 
 # Tiny Desk helper: makes the "Pulse" workspace icon open the SPA at /pulse directly.
 app_include_js = ["/assets/pulse/js/pulse_desk.js"]
