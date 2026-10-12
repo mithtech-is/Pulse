@@ -1,11 +1,30 @@
 import re
 
 import frappe
-from frappe.utils import now_datetime
+from frappe.utils import now_datetime, today
 
 
 def before_insert(doc, method=None):
     assign_issue_key(doc)
+
+
+def sync_status_from_board(doc, method=None):
+    """A board column set in the Desk form moves Status too, as a drag on the board does.
+
+    update_task_state (the board) writes both; the form only wrote Board State, so a
+    task could show Done on the board and Pending Review in ERPNext.
+    """
+    from pulse.api.spa import STATE_TO_STATUS
+
+    state = doc.get("workflow_state")
+    before = doc.get_doc_before_save()
+    if not state or (before is not None and before.get("workflow_state") == state):
+        return
+    status = STATE_TO_STATUS.get(state)
+    if status and doc.status != status:
+        doc.status = status
+        if status == "Completed" and not doc.get("completed_on"):
+            doc.completed_on = today()
 
 
 def on_update(doc, method=None):

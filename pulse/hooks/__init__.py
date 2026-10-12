@@ -121,7 +121,10 @@ doc_events = {
     "Task": {
         "before_insert": "pulse.hooks.doc_events.task.before_insert",
         "on_update": "pulse.hooks.doc_events.task.on_update",
-        "validate": "pulse.hooks.permissions.validate_task_assignees",
+        "validate": [
+            "pulse.hooks.permissions.validate_task_assignees",
+            "pulse.hooks.doc_events.task.sync_status_from_board",
+        ],
     },
     "ToDo": {
         "validate": "pulse.hooks.permissions.on_todo_assign",
