@@ -243,7 +243,7 @@ def get_task(task):
         "pulse_sprint": doc.pulse_sprint,
         "pulse_epic": doc.get("pulse_epic"), "pulse_release": doc.get("pulse_release"),
         "exp_start_date": doc.exp_start_date, "exp_end_date": doc.exp_end_date,
-        "assignees": _assignees(doc._assign),
+        "assignees": _assignees(doc.get("_assign")),
         "checklist": checklist, "comments": comments,
         "subtasks": subtasks, "blocked_by": blocked_by, "parent": parent,
     }

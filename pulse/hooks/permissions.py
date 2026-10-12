@@ -97,8 +97,9 @@ def validate_task_assignees(doc, method=None):
     before = doc.get_doc_before_save()
     if before is None:
         return
-    old_assign = frappe.parse_json(before._assign or "[]")
-    new_assign = frappe.parse_json(doc._assign or "[]")
+    # `_assign` is only set on a document once someone is assigned; .get() reads None otherwise
+    old_assign = frappe.parse_json(before.get("_assign") or "[]")
+    new_assign = frappe.parse_json(doc.get("_assign") or "[]")
     added = [u for u in new_assign if u not in old_assign]
     for user in added:
         from pulse.hooks.doc_events.assignment import validate_assignment
