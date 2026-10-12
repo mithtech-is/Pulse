@@ -7,6 +7,11 @@ from pulse.services.hierarchy_service import can_assign, hierarchy_enabled
 def enforce_hierarchy(doc, method=None):
     if getattr(doc, "doctype", None) != "ToDo":
         return
+    # The hierarchy governs work in Pulse: Task assignments made by people.
+    # ToDos on other doctypes (Lead, Opportunity, ...) and assignments made by
+    # an Assignment Rule are the rest of ERPNext's business, not Pulse's.
+    if doc.get("reference_type") != "Task" or doc.get("assignment_rule"):
+        return
     assignee = doc.get("allocated_to")
     if not assignee:
         return
