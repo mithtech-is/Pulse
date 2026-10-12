@@ -4,7 +4,7 @@ frappe.query_reports["Pulse Burnup"] = {
             "fieldname": "project",
             "label": __("Project"),
             "fieldtype": "Link",
-            "options": "Pulse Project"
+            "options": "Project"
         },
         {
             "fieldname": "sprint",
@@ -14,9 +14,9 @@ frappe.query_reports["Pulse Burnup"] = {
             "reqd": 1,
             "get_query": function() {
                 let project = frappe.query_report.get_filter_value("project");
-                return {
+                return project ? {
                     filters: { project: project }
-                };
+                } : {};
             }
         }
     ]
