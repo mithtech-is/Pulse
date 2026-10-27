@@ -99,7 +99,7 @@ Teams that already run ERPNext often plan their work in another tool and copy it
                 │  thin whitelisted REST  (pulse.api.*)
 ┌───────────────┴──────────────────────────────────────────┐
 │  Pulse app  (Frappe / Python)                             │
-│  ~50 Pulse doctypes · doc-events · permission hooks ·     │
+│  40 Pulse doctypes · doc-events · permission hooks ·      │
 │  hierarchical assignment · reports · schedulers           │
 └───────────────▲──────────────────────────────────────────┘
                 │  framework primitives + ERPNext Project / Task
@@ -203,7 +203,7 @@ pulse/
 └── pulse/                    # the Frappe app
     ├── api/                  # pulse.api.*  (spa, dashboards, analytics, audit)
     ├── pulse/
-    │   ├── doctype/          # ~50 Pulse doctypes
+    │   ├── doctype/          # 40 Pulse doctypes
     │   ├── report/           # velocity, burndown, cumulative flow, …
     │   ├── demo/             # showcase seeder
     │   └── www/pulse.html    # serves the SPA at /pulse
