@@ -2,11 +2,11 @@
 
 # ⚡ Pulse
 
-### Modern, standalone project management for Frappe
+### Agile delivery on ERPNext's own Projects and Tasks
 
-A Plane / Jira / Linear-style delivery tool that installs on **any** Frappe site with **zero dependency on ERPNext** — and can be driven by AI through a built-in MCP server.
+A Plane / Jira / Linear-style delivery layer for the ERPNext you already run: sprints, a Kanban board, OKRs, risks and retrospectives on ERPNext Projects and Tasks, driven by AI through a built-in MCP server if you want.
 
-`Frappe v16` · `Vue 3` · `frappe-ui` · `Python` · `MIT`
+`Frappe v16` · `ERPNext v16` · `Vue 3` · `frappe-ui` · `Python` · `MIT`
 
 </div>
 
@@ -35,16 +35,16 @@ A Plane / Jira / Linear-style delivery tool that installs on **any** Frappe site
 
 ## What is Pulse
 
-**Pulse** is a self-contained, agile project-management application for the [Frappe framework](https://frappeframework.com). It gives delivery teams a fast, modern experience — projects, tasks with human-readable keys (`OPS-9`), a drag-and-drop board, sprints, backlog, per-user customizable dashboards, analytics, OKRs, risks, meetings, retrospectives, timesheets and a timestamped audit log — all delivered through a **Vue 3 single-page app** at `/pulse`, dark-themed by default.
+**Pulse** is an agile delivery layer for [ERPNext](https://erpnext.com) Projects and Tasks, built on the [Frappe framework](https://frappeframework.com). It gives delivery teams a fast, modern experience — projects, tasks with human-readable keys (`OPS-9`), a drag-and-drop board, sprints, backlog, per-user customizable dashboards, analytics, OKRs, risks, meetings, retrospectives, timesheets and a timestamped audit log — all delivered through a **Vue 3 single-page app** at `/pulse`, dark-themed by default.
 
-Every piece of data Pulse touches is **owned by Pulse**. Nothing is linked to another app's doctypes, so it installs and runs the same on a bare Frappe site as it does alongside ERPNext.
+Your projects and tasks stay **ERPNext Projects and Tasks**. Pulse adds a few fields to them (sprint, epic, board state, rank, release, issue key) and keeps its own records (sprints, OKRs, risks, meetings, retrospectives, timesheets, dashboards) linked to them, so ERPNext's reports, permissions and accounting links keep working.
 
 ## Why Pulse
 
-Most Frappe-based PM tools are built *on top of* ERPNext Projects, which couples your delivery data to a full ERP and makes them impossible to run standalone. Pulse takes the opposite stance:
+Teams that already run ERPNext often plan their work in another tool and copy it back. Pulse keeps the plan where the projects already live:
 
-- **Plug-and-play** — `bench install-app pulse` works on a fresh Frappe site with **no ERPNext** required. (Verified end-to-end: installs cleanly on a site where ERPNext was never present.)
-- **Owns 100% of its data** — no Pulse doctype links to a non-Pulse business doctype; only framework primitives (`User`, `Role`, `Workflow State`, `File`, …) are reused.
+- **On ERPNext's own records** — a card on the board is an ERPNext Task, so there is no second task list to sync.
+- **Adds only what ERPNext lacks** — sprints, OKRs, risks, retrospectives and the rest are `Pulse *` doctypes linked to ERPNext Project and Task.
 - **Modern UX** — a real SPA, not Desk forms: drag-drop board, command-style flows, restraint-first dark design.
 - **AI-native** — ships an MCP server so assistants like Claude can create, edit, move and assign work in plain language.
 
@@ -53,7 +53,7 @@ Most Frappe-based PM tools are built *on top of* ERPNext Projects, which couples
 ### Projects & tasks
 - Projects with a short **project key** (`OPS`, `PLM`) used to build task ids.
 - **Human-readable task keys** — per-project running sequence (`OPS-9`, `PLS1-8`), auto-assigned on create and backfilled for existing tasks.
-- Task types (Epic, Story, Bug, Feature, Improvement, Incident, Task, Sub-task) as first-class, standalone **Pulse Issue Type** records — never ERPNext's `Task Type`.
+- Task types (Epic, Story, Bug, Feature, Improvement, Incident, Task, Sub-task) as ERPNext **Task Type** records, created on install.
 - Priority, story points, due dates, description, labels.
 
 ### Board & work views
@@ -102,20 +102,20 @@ Most Frappe-based PM tools are built *on top of* ERPNext Projects, which couples
 │  ~50 Pulse doctypes · doc-events · permission hooks ·     │
 │  hierarchical assignment · reports · schedulers           │
 └───────────────▲──────────────────────────────────────────┘
-                │  reuses ONLY framework primitives
+                │  framework primitives + ERPNext Project / Task
 ┌───────────────┴──────────────────────────────────────────┐
 │  Frappe framework  (auth · permissions · workflow · REST) │
 └──────────────────────────────────────────────────────────┘
-        (no ERPNext — nothing here depends on it)
+        (+ ERPNext v16: Project and Task are the records Pulse plans on)
 ```
 
 - **Backend:** all logic in the `pulse` app; the public API lives under the `pulse.api.*` namespace and writes go through the standard document API so permissions and validations always fire.
 - **Frontend:** a Vue 3 + frappe-ui app in [`frontend/`](frontend), built to `pulse/public/frontend` and served by a small website route at `/pulse`.
-- **Standalone guarantee:** no `required_apps`, no ERPNext references, and every doctype link targets a `Pulse *` doctype or a framework-core doctype.
+- **Depends on ERPNext:** `required_apps = ["erpnext"]`. Custom fields on ERPNext Project and Task are set up by `pulse/erpnext_bridge.py`; Pulse doctypes link only to ERPNext Project and Task, framework doctypes and other `Pulse *` doctypes.
 
 ## Installation
 
-Prerequisites: a working [Frappe bench](https://frappeframework.com/docs/user/en/installation) (v15+/v16).
+Prerequisites: a working [Frappe bench](https://frappeframework.com/docs/user/en/installation) with **Frappe v16 and ERPNext v16** installed on the site.
 
 ```bash
 # from your bench directory
@@ -133,7 +133,7 @@ yarn install
 yarn build
 ```
 
-That's it — no ERPNext, no extra services.
+That's it — no extra services.
 
 ## First run
 
@@ -213,7 +213,7 @@ pulse/
 
 ## Data model
 
-Pulse owns ~50 doctypes, all prefixed `Pulse `, including: `Pulse Project`, `Pulse Task`, `Pulse Sprint`, `Pulse Issue Type`, `Pulse Task Status Log`, `Pulse Dependency`, `Pulse Checklist`, `Pulse Comment`, `Pulse Label`, `Pulse Dashboard` / `Pulse Dashboard Widget`, `Pulse Team`, `Pulse Portfolio`, `Pulse Objective` / `Pulse Key Result` / `Pulse OKR Check-in`, `Pulse Risk`, `Pulse Meeting`, `Pulse Change Request`, `Pulse Retrospective`, `Pulse Timesheet`, `Pulse Document`, `Pulse Holiday List`, `Pulse Settings`, and their child tables.
+Projects and tasks are ERPNext `Project` and `Task`, with Pulse's custom fields (see `pulse/erpnext_bridge.py`). Pulse adds 40 doctypes, all prefixed `Pulse `, including: `Pulse Sprint`, `Pulse Goal`, `Pulse Objective` / `Pulse Key Result` / `Pulse OKR Check-in`, `Pulse Risk` (+ actions), `Pulse Change Request`, `Pulse Meeting`, `Pulse Decision`, `Pulse Retrospective`, `Pulse Timesheet`, `Pulse Task Status Log`, `Pulse Dependency`, `Pulse Checklist`, `Pulse Comment`, `Pulse Dashboard` / `Pulse Dashboard Widget`, `Pulse Portfolio`, `Pulse Document`, `Pulse Recurring Task`, `Pulse Settings`, and their child tables.
 
 ## Roadmap
 
@@ -226,17 +226,24 @@ Pulse owns ~50 doctypes, all prefixed `Pulse `, including: `Pulse Project`, `Pul
 
 ## FAQ
 
-**Does it need ERPNext?** No. Pulse is fully standalone and installs on a bare Frappe site.
+**Does it need ERPNext?** Yes, version 16. Pulse plans on ERPNext's own Projects and Tasks.
 
 **Where does the UI live?** A Vue SPA at `/pulse`. The old Desk pages have been retired — the SPA is the only UI.
 
-**Are my tasks the same as ERPNext Tasks?** No — Pulse has its own `Pulse Task` doctype. Your data never leaks into another app.
+**Are my tasks the same as ERPNext Tasks?** Yes. A card on the board is an ERPNext Task; Pulse adds sprint, epic, board state and rank as fields on it.
 
 **Can I use it without the frontend build step?** Yes — pre-built assets are committed. The build step is only for developing the UI.
 
 ## Contributing
 
-Issues and PRs welcome. Please keep the standalone rule intact: **no Pulse doctype may link to a non-Pulse, non-framework doctype**, and no new dependency on ERPNext or any other app.
+Issues and PRs welcome. Keep Pulse's links to ERPNext limited to Project and Task, and add no dependency on other apps.
+
+## Made by MithTech
+
+Pulse is built and maintained by [MithTech](https://mith.tech), Frappe specialists in Bengaluru. We implement and support ERPNext and use Pulse on our own delivery.
+
+- Product page: [mith.tech/products/pulse](https://mith.tech/products/pulse)
+- Want it installed and run for you, or need ERPNext itself? [ERPNext implementation](https://mith.tech/services/erpnext-implementation) · [Talk to us](https://mith.tech/contact)
 
 ## License
 
