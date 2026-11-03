@@ -1,2 +1,4 @@
-# Proxy file to satisfy Frappe's is_frappe_app check which looks for hooks.py
+# Bench validates this file statically; runtime hooks live in pulse/hooks/__init__.py.
+app_title = "Pulse"
+
 from pulse.hooks import *
